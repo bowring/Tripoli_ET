@@ -151,7 +151,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
-    public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) {
+    public synchronized static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) {
         // assume for now that these are two sequential runs with all the same metadata
         // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
@@ -184,7 +184,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return analysisConcat;
     }
 
-    public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
+    public synchronized void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
         this.analysisSpeciesStats = analysisSpeciesStats;
     }
 
@@ -200,7 +200,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
      *
      */
     @Override
-    public void resetAnalysis() {
+    public synchronized void resetAnalysis() {
         analysisMethod = null;
         mapOfBlockIdToPlots.clear();
         mapOfBlockIdToPeakPlots.clear();
@@ -350,7 +350,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
-    public void initializeBlockProcessing() {
+    public synchronized void initializeBlockProcessing() {
         for (Integer blockID : getAnalysisCaseNumber() > 1 ?
                 massSpecExtractedData.getBlocksDataFull().keySet() : massSpecExtractedData.getBlocksDataLite().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
@@ -381,7 +381,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
 
-    public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
+    public synchronized PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
         PlotBuilder[][] retVal = new PlotBuilder[0][];
         if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPlots.remove(blockID);
@@ -403,7 +403,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return retVal;
     }
 
-    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth) {
+    public synchronized void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth) {
         // PlotBuilder indices for convergence LinePlotBuilders = 5,6,8,9
         // TODO: make these indices into constants
         // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
@@ -417,14 +417,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
-    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
+    private synchronized void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
         for (int i = 0; i < linePlotBuilders.length; i++) {
             linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
         }
     }
 
     @Override
-    public PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
+    public synchronized PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
         PlotBuilder[] retVal;
         if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPeakPlots.remove(blockID);
@@ -443,7 +443,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     // Updates Peak Centre plots
 
 
-    public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
+    public synchronized void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
             PlotBuilder[] plotBuilder = mapOfBlockIdToPlots.get(blockID)[PLOT_INDEX_RATIOS];
             if (null != plotBuilder[indexOfIsotopicRatio]) {
@@ -452,7 +452,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
-    public String uppdateLogsByBlock(int blockID, String logEntry) {
+    public synchronized String uppdateLogsByBlock(int blockID, String logEntry) {
         String log = "";
         if (mapOfBlockToLogs.containsKey(blockID)) {
             log = mapOfBlockToLogs.get(blockID);
@@ -464,7 +464,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
+    public synchronized AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
         Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         int index = 0;
@@ -488,14 +488,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return new AllBlockInitForMCMC.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
     }
 
-    public final String prettyPrintAnalysisSummary() {
+    public synchronized final String prettyPrintAnalysisSummary() {
         return analysisName +
                 SPACES_150.substring(0, 50 - analysisName.length()) +
                 analysisStartTime + SPACES_150.substring(0, 50) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
-    public final String prettyPrintAnalysisMetaData() {
+    public synchronized final String prettyPrintAnalysisMetaData() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%30s", "Mass Spectrometer: "))
                 .append(String.format("%-15s", massSpecExtractedData.getMassSpectrometerContext().getMassSpectrometerName()))
@@ -514,7 +514,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
-    public final String prettyPrintAnalysisDataSummary() {
+    public synchronized final String prettyPrintAnalysisDataSummary() {
         StringBuilder sb = new StringBuilder();
         if (getAnalysisCaseNumber() == 1) {
             sb.append(String.format("%30s", "Column headers: "));
@@ -555,7 +555,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
-    private int[][] calculateSpeciesIncludedCounts() {
+    private synchronized int[][] calculateSpeciesIncludedCounts() {
         int[][] speciesIncludedCounts = new int[0][0];
         if (analysisMethod != null) {
             int speciesCount = analysisMethod.getSpeciesList().size();
@@ -576,7 +576,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return speciesIncludedCounts;
     }
 
-    public void analysisRatioEngine() {
+    public synchronized void analysisRatioEngine() {
         Map<IsotopicRatio, List<HistogramRecord>> mapRatioToAnalysisLogRatioRecords = new TreeMap<>();
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -604,7 +604,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
     }
 
-    public final ETReduxFraction prepareFractionForETReduxExport() {
+    public synchronized final ETReduxFraction prepareFractionForETReduxExport() {
         setEtReduxExportType(getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
 
         ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
@@ -619,7 +619,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return etReduxFraction;
     }
 
-    public final String prepareFractionForClipboardExport() {
+    public synchronized final String prepareFractionForClipboardExport() {
         String retVal = "";
         for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
             if (uf.isDisplayed()) {
@@ -631,7 +631,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return retVal;
     }
 
-    public final String produceReportTemplateOne() {
+    public synchronized final String produceReportTemplateOne() {
 
         StringBuilder sb = new StringBuilder();
         sb.append(massSpecExtractedData.printHeader());
@@ -747,7 +747,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     public void initializeDefaultsFromSessionDefaults(Session session) {
-
         setAnalysisMapOfSpeciesToColors(
                 new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;

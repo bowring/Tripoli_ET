@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -23,17 +25,29 @@ import javafx.concurrent.Task;
  * @author James F. Bowring
  */
 public class MCMCUpdatesService extends Service<String> {
-    private final int blockID;
 
+    private final IntegerProperty blockID = new SimpleIntegerProperty();
     private Task<String> plotBuilderTask;
 
     public MCMCUpdatesService(int blockID) {
-        this.blockID = blockID;
+        setBlockID(blockID);
+    }
+
+    public final int getBlockID() {
+        return blockID.get();
+    }
+
+    public final void setBlockID(int value) {
+        blockID.set(value);
+    }
+
+    public final IntegerProperty blockIDProperty() {
+        return blockID;
     }
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMCPlotBuildersTask(blockID);
+        plotBuilderTask = new MCMCPlotBuildersTask(getBlockID());
         return plotBuilderTask;
     }
 
