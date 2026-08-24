@@ -254,7 +254,7 @@ public class SettingsWindow {
         initR18O_16O_OxideCorrectionText();
     }
 
-    private void initR18O_16O_OxideCorrectionText(){
+    private void initR18O_16O_OxideCorrectionText() {
         TextField r18O_16O_TextField = settingsWindowController.r18O_16O_TextField;
         r18O_16O_TextField.setText(Double.toString(analysis.getParameters().getR18O_16O_OxideCorrection()));
 
@@ -707,7 +707,7 @@ public class SettingsWindow {
                         tripoliPersistentState.getTripoliPersistentParameters().getR18O_16O_OxideCorrection()
                 );
                 settingsWindowController.r18O_16O_TextField.setText(
-                        String.valueOf(analysis.getParameters().getR18O_16O_OxideCorrection())
+                        String.valueOf(TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION)
                 );
                 // Get values from persistent state, use system defaults if uninitialized (backward compatibility)
                 double minSize = org.cirdles.tripoli.constants.TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
@@ -767,7 +767,6 @@ public class SettingsWindow {
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
 
-            analysis.getParameters().setR18O_16O_OxideCorrection(TripoliConstants.R18O_16O_DEFAULT_OXIDE_CORRECTION);
             settingsWindowController.r18O_16O_TextField.setText(String.valueOf(originalParameters.getR18O_16O_OxideCorrection()));
             // Update spinner value factories - need to update ranges first
             SpinnerValueFactory.DoubleSpinnerValueFactory minValueFactory =

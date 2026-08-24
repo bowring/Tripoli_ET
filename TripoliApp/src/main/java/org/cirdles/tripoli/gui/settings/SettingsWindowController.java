@@ -24,11 +24,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.DOCS_FOLDER;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectLiveDataStatusTxtFile;
@@ -46,6 +49,7 @@ public class SettingsWindowController implements Initializable {
     public Button selectSampleMetaDataFolderButton;
     public TextArea liveDataStatusTxtFileTextArea;
     public TextField r18O_16O_TextField;
+    public Button infoButton;
     @FXML
     private TabPane settingsTabPane;
     @FXML
@@ -93,6 +97,12 @@ public class SettingsWindowController implements Initializable {
                 .getTripoliPersistentParameters().getSampleMetaDataFolderPath());
         liveDataStatusTxtFileTextArea.setText(tripoliPersistentState
                 .getTripoliPersistentParameters().getLiveDataStatusTxtFilePath());
+
+        //  infoButton.setFont(commandFont);
+        infoButton.setOnAction(event -> {
+            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "OxideCorrectionImplementation.pdf");
+            BrowserControl.showURI(resourcePath.toString());
+        });
     }
 
     public AnchorPane getRatioColorSelectionAnchorPane() {

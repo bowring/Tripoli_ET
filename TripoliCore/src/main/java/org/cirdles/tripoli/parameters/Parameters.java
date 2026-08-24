@@ -145,7 +145,6 @@ public class Parameters implements Serializable {
     public double getR18O_16O_OxideCorrection() {
         if (r18O_16O_OxideCorrection <= 0.0) {
             r18O_16O_OxideCorrection = R18O_16O_DEFAULT_OXIDE_CORRECTION;
-            ;
         }
         return r18O_16O_OxideCorrection;
     }
