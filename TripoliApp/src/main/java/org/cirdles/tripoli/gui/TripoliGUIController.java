@@ -546,7 +546,7 @@ public class TripoliGUIController implements Initializable {
         tripoliSession = Session.initializeDefaultSession();
         SessionManagerController.tripoliSession = tripoliSession;
         launchSessionManager();
-        AnalysisManagerController.analysis = null;
+        analysis = null;
         updateStageTitle();
     }
 
@@ -567,7 +567,7 @@ public class TripoliGUIController implements Initializable {
             File sessionFile = new File(sessionFileName);
             confirmSaveOnProjectClose();
             tripoliSession = (Session) TripoliSerializer.getSerializedObjectFromFile(sessionFileName, true);
-            AnalysisManagerController.analysis = null;
+            analysis = null;
             if (null != tripoliSession) {
                 SessionManagerController.tripoliSession = tripoliSession;
                 tripoliSession.setSessionFilePathAsString(sessionFileName);
@@ -712,7 +712,7 @@ public class TripoliGUIController implements Initializable {
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ end analyses ++++++++++++++++++++++++++++++++++++++++++++++++++
     @FXML
     private void showTripoliAbout() {
-        TripoliGUI.tripoliAboutWindow.loadAboutWindow();
+        tripoliAboutWindow.loadAboutWindow();
     }
 
     @FXML
@@ -1081,6 +1081,12 @@ public class TripoliGUIController implements Initializable {
 
         liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                // add pause aug 2026
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    // throw new RuntimeException(e);
+                }
                 Platform.runLater(() -> handleFinalFileProcessing(filePath));
             }
         });
@@ -1091,7 +1097,7 @@ public class TripoliGUIController implements Initializable {
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
                 } catch (InterruptedException e) {
-                   // throw new RuntimeException(e);
+                    // throw new RuntimeException(e);
                 }
                 liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
                 if (liveDataAnalysis.get() != null) {
@@ -1104,17 +1110,19 @@ public class TripoliGUIController implements Initializable {
             }
         });
 
+        boolean proceed = false;
         if (liveDataAnalysis.get().getUserFunctions().isEmpty()) {
-            liveDataLogWatcher.processExistingFiles(blockCycleComparator);
+            proceed = liveDataLogWatcher.processExistingFiles(blockCycleComparator);
         }
+        if (proceed) {
+            liveDataLogThread = new Thread(liveDataLogWatcher);
+            liveDataLogThread.setDaemon(true);
+            liveDataLogThread.start();
 
-        liveDataLogThread = new Thread(liveDataLogWatcher);
-        liveDataLogThread.setDaemon(true);
-        liveDataLogThread.start();
-
-        liveDataFinishFileThread = new Thread(liveDataFinishFileWatcher);
-        liveDataFinishFileThread.setDaemon(true);
-        liveDataFinishFileThread.start();
+            liveDataFinishFileThread = new Thread(liveDataFinishFileWatcher);
+            liveDataFinishFileThread.setDaemon(true);
+            liveDataFinishFileThread.start();
+        }
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------

@@ -48,6 +48,8 @@ public enum FileUtilities {
                     files.add(entry);
                 }
             }
+        } catch (IOException e) {
+            System.err.println("Error listing LiveData files: " + e.getMessage());
         }
         return files;
     }

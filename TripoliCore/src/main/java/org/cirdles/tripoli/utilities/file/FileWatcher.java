@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -44,9 +45,10 @@ public class FileWatcher implements Runnable {
         return pathToWatch;
     }
 
-    public void processExistingFiles(Comparator<Path> comparator) {
+    public boolean processExistingFiles(Comparator<Path> comparator) {
+        List<Path> existingFiles = List.of();
         try {
-            List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
+            existingFiles = FileUtilities.listRegularFiles(pathToWatch);
 
             if (comparator != null) {
                 existingFiles.sort(comparator);
@@ -58,6 +60,7 @@ public class FileWatcher implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return existingFiles.size() > 0;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class FileWatcher implements Runnable {
                     }
                 }
 
-                WatchKey key = watchService.poll(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+                WatchKey key = watchService.poll(500, TimeUnit.MILLISECONDS);
                 if (key == null) continue;
 
                 for (WatchEvent<?> event : key.pollEvents()) {
