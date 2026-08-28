@@ -69,7 +69,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private final Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private final UserFunction userFunction;
     private final PlotWallPaneInterface parentWallPane;
-    private final boolean isRatio;
+    private boolean isRatio;
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
@@ -279,6 +279,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     public void calcStats() {
         analysisStatsRecord = userFunction.calculateAnalysisStatsRecord(analysis);
+        isRatio = userFunction.isTreatAsIsotopicRatio();
     }
 
     /**
