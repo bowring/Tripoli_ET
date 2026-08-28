@@ -105,10 +105,11 @@ public class PhoenixLiveData implements Serializable {
 
             do {
                 line = bufferedReader.readLine();
-            } while (!Objects.equals(line.split(",")[0], "Method"));
+            } while (null !=line && !Objects.equals(line.split(",")[0], "Method"));
         } catch (IOException ignored) {
         }
 
+        assert line != null;
         String[] methodParts = line.split("\\\\");
         String methodName = methodParts[methodParts.length - 2].replace("\"", "");
 

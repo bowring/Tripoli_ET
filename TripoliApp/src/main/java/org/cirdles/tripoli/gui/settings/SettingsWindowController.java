@@ -105,6 +105,7 @@ public class SettingsWindowController implements Initializable {
         });
     }
 
+
     public AnchorPane getRatioColorSelectionAnchorPane() {
         return ratioColorSelectionAnchorPane;
     }
